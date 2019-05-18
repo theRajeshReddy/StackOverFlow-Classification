@@ -93,8 +93,27 @@ print(multilabel_binarizer.classes_)
 array(['android', 'c#', 'c++', 'html', 'ios', 'java', 'javascript','jquery', 'php', 'python'], dtype=object)
 ```
 
-*Title Preprocessing*
+*Title & Body Preprocessing*
+1. Tokenize the words
+2. Convert the tokenized words to sequences
 
+**Model Building** 
+
+Implemented a Hybrid model in TensorFlow using Keras as high level api. Architecture used is RNN. In this model first we train a model using the Title data, then train a model using the Body data. Outputs of both are concatenated and passed thorugh the dense layers before connecting to the output layer
+
+*RNN Model* : The model first  uses GRU for the sequence data training with 2 GRU layers one for Title and other for Body. 
+
+Each Layer has
+  - 2 Conv2D layers (first layer with input of shape 240,240,3 (240x240 - Image Scale, 3 - RGB Scale))
+  - 2 BatchNormalization layers [For Info click here](https://medium.com/deeper-learning/glossary-of-deep-learning-batch-normalisation-8266dcd2fa82)
+  - 1 Dropout Layer of rate 30% 
+  
+*Model Compilattion with loss='categorical_crossentropy',metrics='accuracy' and optimizer='adam'*
+
+*Call back for early stopping when test accuracy doesn't increase in 5 epochs*
+```python
+callback = [callbacks.EarlyStopping(monitor='val_accuracy',patience=5)]
+```
 
 
 ```python
