@@ -101,38 +101,52 @@ array(['android', 'c#', 'c++', 'html', 'ios', 'java', 'javascript','jquery', 'ph
 
 Implemented a Hybrid model in TensorFlow using Keras as high level api. Architecture used is RNN. In this model first we train a model using the Title data, then train a model using the Body data. Outputs of both are concatenated and passed thorugh the dense layers before connecting to the output layer
 
-*RNN Model* : The model first  uses GRU for the sequence data training with 2 GRU layers one for Title and other for Body. 
+*RNN Model* : The model first uses GRU for the sequence data training with 2 GRU layers one for Title and other for Body. 
 
-Each Layer has
-  - 2 Conv2D layers (first layer with input of shape 240,240,3 (240x240 - Image Scale, 3 - RGB Scale))
-  - 2 BatchNormalization layers [For Info click here](https://medium.com/deeper-learning/glossary-of-deep-learning-batch-normalisation-8266dcd2fa82)
-  - 1 Dropout Layer of rate 30% 
+RNN for Title has
+  - 1 Embedding Layer has input of Title vocabulary length(68969) + 1(for 0 padding) and out put of 2000 embeddings (for better results use full vocabulary length+1)
+  - 1 Gated recurrent unit (GRU) layer
+  - 1 dense output layer of shape 10(No of classes(tags) we are trying to predict) 
+
+```python
+    # Title Only
+    title_input = Input(name='title_input',shape=[max_len_t])
+    title_Embed = Embedding(vocab_len_t+1,2000,input_length=max_len_t,mask_zero=True,name='title_Embed')(title_input)
+    gru_out_t = GRU(300)(title_Embed)
+    # auxiliary output to tune GRU weights smoothly 
+    auxiliary_output = Dense(10, activation='sigmoid', name='aux_output')(gru_out_t) 
+```
+
+RNN for Body has
+  - 1 Embedding Layer has input of Title vocabulary length(1292018) + 1(for 0 padding) and out put of 170 embeddings (for better results use full vocabulary length+1)
+  - 1 Gated recurrent unit (GRU) layer
+
+```python
+    # Body Only
+    body_input = Input(name='body_input',shape=[max_len_b]) 
+    body_Embed = Embedding(vocab_len_b+1,170,input_length=max_len_b,mask_zero=True,name='body_Embed')(body_input)
+    gru_out_b = GRU(200)(body_Embed) 
+```
+
+Combine the 2 GRU outputs
+```python
+    com = concatenate([gru_out_t, gru_out_b])
+```
+
+The fully connected network has
+  - 2 Dense Layers 
+  - 1 Dropout layer
+  - 1 BatchNormalization layer
+  - 1 Dense Output layer
   
-*Model Compilattion with loss='categorical_crossentropy',metrics='accuracy' and optimizer='adam'*
-
-*Call back for early stopping when test accuracy doesn't increase in 5 epochs*
 ```python
-callback = [callbacks.EarlyStopping(monitor='val_accuracy',patience=5)]
+    # now the combined data is being fed to dense layers
+    dense1 = Dense(400,activation='relu')(com)
+    dp1 = Dropout(0.5)(dense1)
+    bn = BatchNormalization()(dp1) 
+    dense2 = Dense(150,activation='relu')(bn)
+    main_output = Dense(10, activation='sigmoid', name='main_output')(dense2)
 ```
 
+*Model Compilattion with optimizer='adam', loss='categorical_crossentropy', metrics='accuracy')*
 
-```python
-
-```
-
-
-
-**Model Building** 
-
-*Code* : Distracted_Driver_MultiAction_Classification.ipynb
-
-Implimented in Keras using RNN(GRU) architecture 
-
-1. Use MultiLabelBinarizer on our Target Class Tags
-2. Tokenize the Content(questions+description) and convert them to Sequence
-3. Pad Sequences with Zero
-4. Model Architecture - Embedding Layer(reduced the output due to hardware limitation) + GRU + Combinaation of Dense, Dropout and BatchNormalization Layers + Softmax Output layer
-5. Model Compilatation with optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy']
-6. Batch Generator so pass the imput to the model in batches. Batch size = 800
-7. Fit/Train the Model 
-8. Save Model for later use
