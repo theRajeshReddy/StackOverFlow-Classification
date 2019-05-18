@@ -150,3 +150,23 @@ The fully connected network has
 
 *Model Compilattion with optimizer='adam', loss='categorical_crossentropy', metrics='accuracy')*
 
+**Model Performance Review**
+
+*Classification Report to check Precision, Recall and F1 Score*
+
+The Model seem to performing good enough with score of 84%. Increase in the Embedding, GRU and dense layers would help in getting better results
+
+<img src="Images/Classification_Report.JPG" width="400">
+
+**Random Validation on Test Data**
+
+<img src="Images/prediction.JPG" width="270">
+
+
+**Save the Model & Weights**
+
+Saving the model for transfer learning or model execution later
+
+```python
+model.save('./stackoverflow_tags.h5')
+```
