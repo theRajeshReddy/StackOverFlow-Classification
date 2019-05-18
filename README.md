@@ -160,7 +160,7 @@ The Model seem to performing good enough with score of 84%. Increase in the Embe
 
 **Random Validation on Test Data**
 
-<img src="Images/prediction.JPG" width="270">
+<img src="Images/prediction.JPG" width="400">
 
 
 **Save the Model & Weights**
