@@ -53,21 +53,28 @@ print(tagCount)
 
 [('javascript', 124155), ('java', 115212), ('c#', 101186), ('php', 98808), ('android', 90659), ('jquery', 78542), ('python', 64601), ('html', 58976), ('c++', 47591), ('ios', 47009)]
 ```
-<img src="Images/top10_tags.JPG" width="300">
+
+<img src="Images/top10_tags.JPG" width="600">
+
 3. Manipulate the tags dataframe so that all the Tags for an ID are as a list in a row (grouped by Question ID)
+
 ```python
 def add_tags(question_id):
     return tag_top10[tag_top10['Id'] == question_id['Id']].Tag.values
 
 top10 = tag_top10.apply(add_tags, axis=1)
 ```
+
+
 >Combine the Questions and Tags
 *Code* : Stackoverflow Tags Map & Model.ipynb
 
 Merge the Questions and Tags data frame by ID
+
 ```python
 total=pd.merge(ques, top10_tags, on='Id')
 ```
+
 Our Dataset would now have only Id, Title, Body & Tags
 
 >Text Preprocessing
